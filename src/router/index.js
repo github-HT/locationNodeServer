@@ -2,8 +2,9 @@ const router = require('koa-router')()
 const jwt = require('node-jsonwebtoken')
 const jwtAuth = require('koa-jwt')
 const { createUserInfo } = require('../models/register.js')
-const { checkLogin } = require('../models/login.js')
+const { checkLogin, checkLoginDevice } = require('../models/login.js')
 const { getErrMessage } = require('../models/errCode.js')
+const { setLocationInfo } = require('../models/locations.js')
 
 const secret = 'Is a location app secret'
 
@@ -25,7 +26,7 @@ router.post('/users/login', async ctx => {
     ...checkInfo,
     token: jwt.sign({
       data: checkInfo.userInfo,
-      exp: Math.floor(Date.now() / 1000) + 60
+      exp: Math.floor(Date.now() / 1000) + 60 * 60
     }, secret)
   }
 })
@@ -44,16 +45,28 @@ router.post('/users/register', async ctx => {
 router.get('/users/userinfo', jwtAuth({
   secret
 }), async ctx => {
+  const info = checkLoginDevice({ userInfo: ctx.state.user.data })
+  if (info.code !== 0) {
+    ctx.body = info
+    return
+  }
   ctx.body = {
     message: 'suc',
     user: ctx.state.user.data || {}
   }
 })
 
-router.get('/users/logout', jwtAuth({
+router.post('/location/info/load', jwtAuth({
   secret
 }), async ctx => {
-  console.log(ctx.state.user)
+  const body = ctx.request.body
+  const info = checkLoginDevice({ userInfo: ctx.state.user.data })
+  if (info.code !== 0) {
+    ctx.body = info
+    return
+  }
+
+  ctx.body = setLocationInfo(body)
 })
 
 module.exports = { router, secret }

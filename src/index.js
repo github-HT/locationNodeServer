@@ -4,6 +4,7 @@ const Koa = require('koa')
 const app = new Koa()
 const bodyparser = require('koa-bodyparser')
 const kstatic = require('koa-static')
+const cors = require('koa2-cors')
 
 const { router } = require('./router/index')
 
@@ -11,6 +12,16 @@ app.keys = ['locations secert']
 
 app.use(kstatic(__dirname, '/'))
 app.use(bodyparser())
+app.use(cors({
+  origin: function (ctx) {
+    return '*'
+  },
+  // exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
+  // maxAge: 5,
+  // credentials: true,
+  allowMethods: ['GET', 'POST', 'DELETE']
+  // allowHeaders: ['Content-Type', 'Authorization', 'Accept']
+}))
 
 // logger
 
