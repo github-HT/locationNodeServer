@@ -7,6 +7,7 @@ const kstatic = require('koa-static')
 const cors = require('koa2-cors')
 
 const { router } = require('./router/index')
+require('./models/redis')
 
 app.keys = ['locations secert']
 

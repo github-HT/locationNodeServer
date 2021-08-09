@@ -60,13 +60,14 @@ router.post('/location/info/load', jwtAuth({
   secret
 }), async ctx => {
   const body = ctx.request.body
-  const info = checkLoginDevice({ userInfo: ctx.state.user.data })
+  const userInfo = ctx.state.user.data
+  const info = checkLoginDevice({ userInfo })
   if (info.code !== 0) {
     ctx.body = info
     return
   }
 
-  ctx.body = setLocationInfo(body)
+  ctx.body = setLocationInfo({ userInfo, locationData: body })
 })
 
 module.exports = { router, secret }
